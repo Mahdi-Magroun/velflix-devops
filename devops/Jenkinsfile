@@ -47,7 +47,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 // Build the Docker image with the generated tag
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ."
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ../../../"
             }
         }
 
