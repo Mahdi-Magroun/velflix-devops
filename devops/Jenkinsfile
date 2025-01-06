@@ -17,7 +17,7 @@ pipeline {
             }
         }
 
-        stage('Generate Docker Tag') {
+        stage('Generate Docker Tag ') {
             steps {
                 script {
                     // Use a tagging convention (e.g., commit hash or build number)
