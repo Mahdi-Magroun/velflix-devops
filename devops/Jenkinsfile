@@ -18,10 +18,10 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                container('docker') {
+                {
                     // Build the Docker image using a custom Dockerfile in the path devops/docker/prod-docker/Dockerfile.fpm
                     sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ../../../"
-                }
+                
             }
         }
 
