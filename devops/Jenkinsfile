@@ -67,7 +67,7 @@ pipeline {
                     // Commit and push changes back to GitHub
                     sh '''
                     git config --global user.email "jenkins@velfix.com"
-                    git config --global user.name "Jenkins"
+                    git config --global user.name "Mahdi-Magroun"
                     git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
                     git commit -m "Update image tag to ${DOCKER_TAG}"
                     git push origin HEAD:${BRANCH}
