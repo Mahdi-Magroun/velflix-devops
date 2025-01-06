@@ -3,11 +3,10 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'mahdi0188/velflix-fpm'  // Set your Docker Hub username/repository
-        DOCKER_TAG = 'latest'               // Set your tag (e.g., latest or commit SHA)
+        DOCKER_TAG = 'latest'                  // Set your tag (e.g., latest or commit SHA)
         DOCKER_CREDENTIALS_ID = 'mahdi0188-dockerhub' // Jenkins credentials ID for Docker Hub login
     }
 
-  
     stages {
         stage('Checkout') {
             steps {
@@ -18,10 +17,8 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                {
-                    // Build the Docker image using a custom Dockerfile in the path devops/docker/prod-docker/Dockerfile.fpm
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ../../../"
-                
+                // Build the Docker image using a custom Dockerfile
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ../../../"
             }
         }
 
@@ -45,6 +42,4 @@ pipeline {
             }
         }
     }
-
- 
 }
