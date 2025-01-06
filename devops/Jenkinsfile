@@ -46,10 +46,5 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            // Cleanup Docker after the build (optional)
-            // sh 'docker system prune -af'
-        }
-    }
+ 
 }
