@@ -37,6 +37,8 @@ pipeline {
                 script {
                     // Run Composer install to fetch dependencies
                     sh 'composer install --no-interaction --prefer-dist'
+                    sh 'chmod -R 775 storage bootstrap/cache'
+                    sh 'chown -R www-data:www-data storage bootstrap/cache'
                 }
             }
         }
