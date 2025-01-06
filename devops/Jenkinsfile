@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'mahdi0188/velflix-fpm'  // Set your Docker Hub username/repository
         DOCKER_TAG = 'latest'                  // Set your tag (e.g., latest or commit SHA)
-        DOCKER_CREDENTIALS_ID = 'mahdi0188-dockerhub' // Jenkins credentials ID for Docker Hub login
+        DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub' // Jenkins credentials ID for Docker Hub login
     }
 
     stages {
@@ -22,6 +22,16 @@ pipeline {
             }
         }
 
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    // Login to Docker Hub using Jenkins credentials
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
+                }
+            }
+        }
 
         stage('Push Docker Image') {
             steps {
