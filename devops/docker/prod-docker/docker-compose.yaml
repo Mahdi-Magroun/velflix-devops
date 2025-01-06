@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+    velflix-fpm-service:
+        build:
+            context: ../../../
+            dockerfile: devops/docker/prod-docker/Dockerfile.fpm
+        restart: unless-stopped
+        working_dir: /var/www/
+        networks:
+            - laravel-prod
+    velflix-nginx-service:
+        build:
+            context: ../../../
+            dockerfile: devops/docker/prod-docker/Dockerfile.nginx
+        restart: unless-stopped
+        ports:
+            - "8989:80"
+        networks:
+            - laravel-prod
+
+networks:
+    laravel-prod:
+        driver: bridge

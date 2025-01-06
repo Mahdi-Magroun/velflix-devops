@@ -1,0 +1,14 @@
+# Start with the official Nginx lightweight image
+FROM nginx:alpine
+
+COPY ./ /var/www
+
+RUN rm /etc/nginx/conf.d/default.conf
+
+
+COPY ./devops/docker/nginx/ /etc/nginx/conf.d/
+
+
+EXPOSE 80
+
+

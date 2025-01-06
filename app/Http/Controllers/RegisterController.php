@@ -22,7 +22,7 @@ class RegisterController extends Controller
     public function store()
     {
         // return request()->all();
-
+       
         // create the user
         $attributes = request()->validate([
             'name' => ['required', 'max:255'],
@@ -30,9 +30,9 @@ class RegisterController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'min:7', 'max:255'],
         ]);
-
+       
         $user = User::create($attributes);
-
+     
         // log the user in
         auth()->login($user);
 
