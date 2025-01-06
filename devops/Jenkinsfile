@@ -7,37 +7,43 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub'
         GITHUB_CREDENTIALS_ID = 'github'
         BRANCH = 'main'
-        // Define the environment for each build type
-        ENVIRONMENT = 'dev' // Change this value as needed for dev/test/prod
+        ENVIRONMENT = 'dev' // Change as needed for dev/test/prod
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from your repository
                 checkout scm
             }
         }
+
         stage('Set Environment') {
-        steps {
-            script {
-                // Change environment based on the branch name
-                if (env.BRANCH_NAME == 'main') {
-                    ENVIRONMENT = 'prod'
-                } else if (env.BRANCH_NAME == 'test') {
-                    ENVIRONMENT = 'test'
-                } else {
-                    ENVIRONMENT = 'dev'
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        ENVIRONMENT = 'prod'
+                    } else if (env.BRANCH_NAME == 'test') {
+                        ENVIRONMENT = 'test'
+                    } else {
+                        ENVIRONMENT = 'dev'
+                    }
+                    echo "Deploying to ${ENVIRONMENT} environment"
                 }
-                echo "Deploying to ${ENVIRONMENT} environment"
             }
         }
-    }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    // Run Composer install to fetch dependencies
+                    sh 'composer install --no-interaction --prefer-dist'
+                }
+            }
+        }
 
         stage('Generate Docker Tag') {
             steps {
                 script {
-                    // Use a tagging convention (e.g., commit hash or build number)
                     DOCKER_TAG = "${env.ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
                     echo "Generated Docker Tag: ${DOCKER_TAG}"
                 }
@@ -46,7 +52,6 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image with the generated tag
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ../../../"
             }
         }
@@ -54,7 +59,6 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub using Jenkins credentials
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                     }
@@ -65,7 +69,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push the Docker image to Docker Hub
                     sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
@@ -74,19 +77,15 @@ pipeline {
         stage('Update Kubernetes Image Tag') {
             steps {
                 script {
-                    // Read the deployment file
                     def deploymentFile = readFile 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml'
-
-                    // Update the image tag with environment-specific tag
                     def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
                     writeFile file: 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml', text: updatedDeployment
 
-                    // Commit and push changes back to GitHub
                     withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
                         sh '''
                         git config --global user.email "jenkins@velfix.com"
                         git config --global user.name "Mahdi-Magroun"
-                        git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
+                        git add devops/kubernetes/manifests/velflix-fpm-deployment.yaml
                         git commit -m "Update image tag to ${DOCKER_TAG}"
                         git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-devops.git HEAD:${BRANCH}
                         '''
