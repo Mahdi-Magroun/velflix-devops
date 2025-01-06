@@ -3,19 +3,20 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: velflix-fpm
-  name: velflix-fpm
+    app: velflix-nginx
+  name: velflix-nginx
+  namespace: velflix-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: velflix-fpm
+      app: velflix-nginx
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: velflix-fpm
+        app: velflix-nginx
     spec:
       containers:
       - image: mahdi0188/velflix-nginx
