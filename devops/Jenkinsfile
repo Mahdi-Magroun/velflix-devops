@@ -67,7 +67,7 @@ pipeline {
                     // Commit and push changes back to GitHub
                     sh '''
         
-                    git add path/to/deployment.yaml
+                    git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
                     git commit -m "Update image tag to ${DOCKER_TAG}"
                     git push origin ${BRANCH}
                     '''
