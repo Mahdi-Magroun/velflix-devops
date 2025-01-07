@@ -32,14 +32,7 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    // Run Composer install to fetch dependencies
-                    sh 'composer install --no-interaction --prefer-dist'
-                }
-            }
-        }
+
 
         stage('Generate Docker Tag') {
             steps {
