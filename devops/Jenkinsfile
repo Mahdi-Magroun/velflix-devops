@@ -9,6 +9,7 @@ pipeline {
         ENV_CREDENTIALS =  credentials('env-var-file')
         BRANCH = 'main'
         ENVIRONMENT = 'dev' 
+        ENVIRONMENT = 'dev' 
     }
 
     stages {
@@ -22,8 +23,10 @@ pipeline {
             steps {
                 script {
                     sh "echo ${env.BRANCH_NAME}"
+                    sh "echo ${env.BRANCH_NAME}"
                     if (env.BRANCH_NAME == 'main') {
                         ENVIRONMENT = 'prod'
+                    } else if (env.BRANCH_NAME == 'test') { 
                     } else if (env.BRANCH_NAME == 'test') { 
                         ENVIRONMENT = 'test'
                     } else {
@@ -39,7 +42,7 @@ pipeline {
         stage('Generate Docker Tag') {
             steps {
                 script {
-                    DOCKER_TAG = "${env.ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+                    DOCKER_TAG = "${ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
                     echo "Generated Docker Tag: ${DOCKER_TAG}"
                 }
             }
@@ -84,6 +87,7 @@ pipeline {
                         git config --global user.name "Mahdi-Magroun"
                         git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
                         git commit -m "Update image tag to ${DOCKER_TAG}"
+                       
                        
                         '''
                         sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-k8s.git HEAD:${env.BRANCH_NAME}"
