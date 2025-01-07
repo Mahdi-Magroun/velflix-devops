@@ -18,7 +18,7 @@ pipeline {
             }
         }
 
-        stage('Generate Docker Tag ') {
+        stage('Set Environment') {
             steps {
                 script {
                     sh "echo ${env.BRANCH_NAME}"
@@ -39,7 +39,7 @@ pipeline {
         stage('Generate Docker Tag') {
             steps {
                 script {
-                    DOCKER_TAG = "${env.ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+                    DOCKER_TAG = "${ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
                     echo "Generated Docker Tag: ${DOCKER_TAG}"
                 }
             }
@@ -78,19 +78,18 @@ pipeline {
                     def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
                     writeFile file: 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml', text: updatedDeployment
 
-            // Commit and push changes back to GitHub
-            withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-                sh '''
-                git config --global user.email "jenkins@velfix.com"
-                git config --global user.name "Mahdi-Magroun"
-                git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
-                git commit -m "Update image tag to ${DOCKER_TAG}"
-                git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-devops.git HEAD:${BRANCH}
-                '''
+                    withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                        git config --global user.email "jenkins@velfix.com"
+                        git config --global user.name "Mahdi-Magroun"
+                        git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
+                        git commit -m "Update image tag to ${DOCKER_TAG}"
+                       
+                        '''
+                        sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-devops.git HEAD:${env.BRANCH_NAME}"
+                    }
+                }
             }
         }
-    }
-}
-
     }
 }
