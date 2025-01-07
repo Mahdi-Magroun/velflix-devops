@@ -39,7 +39,7 @@ pipeline {
         stage('Generate Docker Tag') {
             steps {
                 script {
-                    DOCKER_TAG = "${env.ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+                    DOCKER_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
                     echo "Generated Docker Tag: ${DOCKER_TAG}"
                 }
             }
