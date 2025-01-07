@@ -23,4 +23,12 @@ spec:
         envFrom:
           - secretRef:
               name: app-env-secrets
+        volumeMounts:
+          - name: app-env-volume
+            mountPath: /var/www/.env
+            subPath: .env
+      volumes:
+        - name: app-env-volume
+          secret:
+            secretName: app-env-secrets
 status: {}
