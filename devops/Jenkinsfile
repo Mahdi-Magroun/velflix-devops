@@ -4,6 +4,9 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'mahdi0188/velflix-fpm'
         GIT_REPO_URL = 'https://github.com/Mahdi-Magroun/velflix-devops'
+        DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub'
+        GITHUB_CREDENTIALS_ID = 'github'
+        ENV_CREDENTIALS_ID = 'env-vars'
         BRANCH = 'main'
         ENVIRONMENT = 'dev' // Change as needed for dev/test/prod
     }
@@ -30,6 +33,8 @@ pipeline {
             }
         }
 
+
+
         stage('Generate Docker Tag') {
             steps {
                 script {
@@ -38,12 +43,11 @@ pipeline {
                 }
             }
         }
-
-        stage('Set .env Variables') {
+                stage('Set .env Variables') {
             steps {
                 script {
                     // Inject secret variables into the .env file
-                    withCredentials([secretText(credentialsId: 'env-vars', variable: 'APP_ENV_VARS')]) {
+                    withCredentials([secretText(credentialsId: ENV_CREDENTIALS_ID , variable: 'APP_ENV_VARS')]) {
                         // Assuming APP_ENV_VARS contains your environment variables as key=value format
                         echo "Injecting secret environment variables into .env file"
                         sh '''
@@ -63,7 +67,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS_ID', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                     }
                 }
@@ -85,7 +89,7 @@ pipeline {
                     def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
                     writeFile file: 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml', text: updatedDeployment
 
-                    withCredentials([usernamePassword(credentialsId: 'GITHUB_CREDENTIALS_ID', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                    withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
                         sh '''
                         git config --global user.email "jenkins@velfix.com"
                         git config --global user.name "Mahdi-Magroun"
