@@ -1,11 +1,56 @@
-# Use PHP 8.2 FPM as the base image
-FROM php:8.2-fpm
+# Stage 1: Build Stage
+FROM php:8.2-cli AS builder
 
-
-# Install system dependencies
+# Install system dependencies and tools for building the project
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libicu-dev \
+    nodejs \
+    npm \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    sockets
+
+# Install Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis \
+    && rm -rf /tmp/pear
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Copy application code to the builder stage
+COPY ./ /var/www
+
+# Set working directory
+WORKDIR /var/www
+
+# Install PHP dependencies using Composer
+RUN composer install --no-dev --optimize-autoloader
+
+# Install Node.js dependencies and build assets
+RUN npm install && npm run build
+
+# Stage 2: Final Stage (PHP-FPM)
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -29,12 +74,19 @@ RUN pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /tmp/pear
 
-COPY ./ /var/www
-RUN chown -R www-data:www-data /var/www 
+# Copy Composer binary from the builder stage
 
+
+# Copy application code from the builder stage
+COPY --from=builder /var/www /var/www
+
+# Set working directory
 WORKDIR /var/www
 
-EXPOSE 9000
+# Set ownership and permissions
+RUN chown -R www-data:www-data /var/www
 
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
 
 
