@@ -29,21 +29,18 @@ RUN pecl install redis \
     && rm -rf /tmp/pear
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Copy application code
 COPY ./ /var/www
 
-
-
+# Set working directory
+WORKDIR /var/www
 # Install dependencies using Composer
 RUN composer install --no-dev --optimize-autoloader
 
 # Set ownership and permissions
 RUN chown -R www-data:www-data /var/www
-
-# Set working directory
-WORKDIR /var/www
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
