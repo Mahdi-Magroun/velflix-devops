@@ -2,11 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'mahdi0188/velflix-fpm'          
-        GIT_REPO_URL = 'https://github.com/Mahdi-Magroun/velflix-devops' 
-        DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub' 
-        GITHUB_CREDENTIALS_ID = 'github' 
-        BRANCH = 'main'                               
+        DOCKER_IMAGE = 'mahdi0188/velflix-fpm'
+        GIT_REPO_URL = 'https://github.com/Mahdi-Magroun/velflix-devops'
+        DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub'
+        GITHUB_CREDENTIALS_ID = 'github'
+        ENV_CREDENTIALS =  credentials('env-var-file')
+        BRANCH = 'main'
+        ENVIRONMENT = 'dev' 
     }
 
     stages {
