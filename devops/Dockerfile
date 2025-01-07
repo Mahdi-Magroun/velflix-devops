@@ -5,7 +5,7 @@ FROM php:8.2-fpm
 ARG user=app
 ARG uid=1000
 
-# Install system dependencies including Node.js and npm
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -14,8 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     zip \
     unzip \
-    && curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,18 +43,8 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user && \
 # Set the working directory
 WORKDIR /var/www
 
-# Copy the application code
-COPY . /var/www
+# Copy custom PHP configuration
+COPY ./devops/docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Switch to the non-root user
 USER $user
-
-# Run artisan key generation and npm build commands
-RUN php artisan key:generate && \
-    npm install && \
-    npm run build
-
-# Expose the necessary port (adjust as needed)
-EXPOSE 9000
-
-

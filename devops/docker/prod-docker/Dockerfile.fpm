@@ -31,16 +31,31 @@ RUN pecl install redis \
 # Install Composer
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
+# Install Node.js and npm
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy application code
 COPY ./ /var/www
 
 # Set working directory
 WORKDIR /var/www
-# Install dependencies using Composer
+
+# Install PHP dependencies using Composer
 RUN composer install --no-dev --optimize-autoloader
+
+# Run Artisan commands to generate the application key
+RUN php artisan key:generate
+
+# Install Node.js dependencies and build assets
+RUN npm install && npm run build
 
 # Set ownership and permissions
 RUN chown -R www-data:www-data /var/www
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
+
+
