@@ -21,8 +21,25 @@ pipeline {
         stage('Generate Docker Tag ') {
             steps {
                 script {
-                    // Use a tagging convention (e.g., commit hash or build number)
-                    DOCKER_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+                    sh "echo ${env.BRANCH_NAME}"
+                    if (env.BRANCH_NAME == 'main') {
+                        ENVIRONMENT = 'prod'
+                    } else if (env.BRANCH_NAME == 'test') {
+                        ENVIRONMENT = 'test'
+                    } else {
+                        ENVIRONMENT = 'dev'
+                    }
+                    echo "Deploying to ${ENVIRONMENT} environment"
+                }
+            }
+        }
+
+
+
+        stage('Generate Docker Tag') {
+            steps {
+                script {
+                    DOCKER_TAG = "${env.ENVIRONMENT}-${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
                     echo "Generated Docker Tag: ${DOCKER_TAG}"
                 }
             }
