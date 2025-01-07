@@ -21,6 +21,7 @@ pipeline {
         stage('Set Environment') {
             steps {
                 script {
+                    sh "echo ${env.BRANCH_NAME}"
                     if (env.BRANCH_NAME == 'main') {
                         ENVIRONMENT = 'prod'
                     } else if (env.BRANCH_NAME == 'test') {

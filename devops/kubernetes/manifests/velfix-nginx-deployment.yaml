@@ -5,7 +5,7 @@ metadata:
   labels:
     app: velflix-nginx
   name: velflix-nginx
-  namespace: velflix-dev
+ 
 spec:
   replicas: 1
   selector:
