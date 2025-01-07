@@ -6,7 +6,7 @@ pipeline {
         GIT_REPO_URL = 'https://github.com/Mahdi-Magroun/velflix-devops'
         DOCKER_CREDENTIALS_ID = 'mahdi0188-docker-hub'
         GITHUB_CREDENTIALS_ID = 'github'
-        ENV_CREDENTIALS_ID = 'env-vars'
+        ENV_CREDENTIALS =  credentials('env-vars')
         BRANCH = 'main'
         ENVIRONMENT = 'dev' // Change as needed for dev/test/prod
     }
@@ -43,23 +43,11 @@ pipeline {
                 }
             }
         }
-                stage('Set .env Variables') {
-            steps {
-                script {
-                    // Inject secret variables into the .env file
-                    withCredentials([secretText(credentialsId: ENV_CREDENTIALS_ID , variable: 'APP_ENV_VARS')]) {
-                        // Assuming APP_ENV_VARS contains your environment variables as key=value format
-                        echo "Injecting secret environment variables into .env file"
-                        sh '''
-                            echo "$APP_ENV_VARS" > .env
-                        '''
-                    }
-                }
-            }
-        }
+            
 
         stage('Build Docker Image') {
             steps {
+                    sh "echo ${ENV_CREDENTIALS} > .env"
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f devops/docker/prod-docker/Dockerfile.fpm ."
             }
         }
