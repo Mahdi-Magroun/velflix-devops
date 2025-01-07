@@ -17,7 +17,7 @@ spec:
         app: velflix-fpm
     spec:
       containers:
-      - image: mahdi0188/velflix-fpm:dev-64-4c3fd6d
+      - image: mahdi0188/velflix-fpm:dev-66-de4a2bf
         name: velflix-fpm
         resources: {}
         envFrom:
