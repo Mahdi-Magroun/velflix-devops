@@ -30,9 +30,9 @@
     <div class="full flex justify-center p-12">
         <div class="flex w-3/5 flex-col items-center justify-center">
             <div>
-                <div class="text-4xl">Enjoy on your TV.</div>
+                <div class="text-4xl">Enjoy on your TV V2.</div>
                 <div class="text-2xl">
-                    watch on Smart TV, Playstation, Xbox, Chromecast, Apple TV, Blu-ray players, and more.
+                    watch on Smart TV, Playstation, Xbox, Chromecast, Apple TV, Blu-ray players, and more V2.
                 </div>
             </div>
         </div>
