@@ -24,7 +24,7 @@ pipeline {
                     sh "echo ${env.BRANCH_NAME}"
                     if (env.BRANCH_NAME == 'main') {
                         ENVIRONMENT = 'prod'
-                    } else if (env.BRANCH_NAME == 'test') {
+                    } else if (env.BRANCH_NAME == 'test') { 
                         ENVIRONMENT = 'test'
                     } else {
                         ENVIRONMENT = 'dev'
