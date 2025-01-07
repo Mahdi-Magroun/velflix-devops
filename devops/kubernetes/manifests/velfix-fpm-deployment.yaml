@@ -1,6 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
+  creationTimestamp: null
   labels:
     app: velflix-fpm
   name: velflix-fpm
@@ -13,22 +15,12 @@ spec:
   strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: velflix-fpm
     spec:
       containers:
-      - image: mahdi0188/velflix-fpm:dev-79-0c935ac
+      - image: mahdi0188/velflix-fpm:dev-35-2350651
         name: velflix-fpm
         resources: {}
-        envFrom:
-          - secretRef:
-              name: app-env-secrets
-        volumeMounts:
-          - name: app-env-volume
-            mountPath: /var/www/.env
-            subPath: .env
-      volumes:
-        - name: app-env-volume
-          secret:
-            secretName: app-env-secrets
 status: {}
