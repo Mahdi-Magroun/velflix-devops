@@ -8,7 +8,7 @@ pipeline {
         GITHUB_CREDENTIALS_ID = 'github'
         ENV_CREDENTIALS =  credentials('env-var-file')
         BRANCH = 'main'
-        ENVIRONMENT = 'dev' // Change as needed for dev/test/prod
+        ENVIRONMENT = 'dev' 
     }
 
     stages {
