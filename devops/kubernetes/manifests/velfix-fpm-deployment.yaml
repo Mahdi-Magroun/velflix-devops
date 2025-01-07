@@ -1,8 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
-  creationTimestamp: null
   labels:
     app: velflix-fpm
   name: velflix-fpm
@@ -15,7 +13,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: velflix-fpm
     spec:
@@ -23,4 +20,7 @@ spec:
       - image: mahdi0188/velflix-fpm:dev-61-b8b8adc
         name: velflix-fpm
         resources: {}
+        envFrom:
+          - secretRef:
+              name: app-env-secrets
 status: {}
