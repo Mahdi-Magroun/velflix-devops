@@ -19,8 +19,7 @@ spec:
         app: velflix-fpm
     spec:
       containers:
-      - image: mahdi0188/velflix-fpm:dev-11-858127e
-      - image: mahdi0188/velflix-fpm:test-5-18778d2
+      - image: mahdi0188/velflix-fpm:dev-15-c130f03
         name: velflix-fpm
         resources: {}
 status: {}

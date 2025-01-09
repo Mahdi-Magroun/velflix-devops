@@ -72,24 +72,39 @@ pipeline {
         }
 
         stage('Update Kubernetes Image Tag') {
-            steps {
-                script {
-                    def deploymentFile = readFile 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml'
-                    def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
-                    writeFile file: 'devops/kubernetes/manifests/velfix-fpm-deployment.yaml', text: updatedDeployment
+    steps {
+        script {
+            // Checkout the target repository
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: "${env.BRANCH_NAME}"]],
+                userRemoteConfigs: [[
+                    url: 'https://github.com/Mahdi-Magroun/velflix-k8s.git',
+                    credentialsId: GITHUB_CREDENTIALS_ID
+                ]]
+            ])
 
-                    withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-                        sh '''
-                        git config --global user.email "jenkins@velfix.com"
-                        git config --global user.name "Mahdi-Magroun"
-                        git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
-                        git commit -m "Update image tag to ${DOCKER_TAG}"
-                       
-                        '''
-                        sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-k8s.git HEAD:${env.BRANCH_NAME}"
-                    }
-                }
+            // Read and update the deployment file
+            def deploymentFile = readFile './velfix-fpm-deployment.yaml'
+            def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
+            writeFile file: './velfix-fpm-deployment.yaml', text: updatedDeployment
+
+            // Configure git and commit changes
+            withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                sh '''
+                git config --global user.email "jenkins@velfix.com"
+                git config --global user.name "Mahdi-Magroun"
+                git add ./velfix-fpm-deployment.yaml
+                git commit -m "Update image tag to ${DOCKER_TAG}"
+                '''
+
+                // Push changes to the target repository
+                sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-k8s.git HEAD:${env.BRANCH_NAME}"
             }
         }
+    }
+}
+
+        
     }
 }
