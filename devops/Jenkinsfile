@@ -9,7 +9,6 @@ pipeline {
         ENV_CREDENTIALS =  credentials('env-var-file')
         BRANCH = 'main'
         ENVIRONMENT = 'dev' 
-        ENVIRONMENT = 'dev' 
     }
 
     stages {
@@ -22,7 +21,6 @@ pipeline {
         stage('Set Environment') {
             steps {
                 script {
-                    sh "echo ${env.BRANCH_NAME}"
                     sh "echo ${env.BRANCH_NAME}"
                     if (env.BRANCH_NAME == 'main') {
                         ENVIRONMENT = 'prod'
@@ -91,18 +89,22 @@ pipeline {
             def updatedDeployment = deploymentFile.replaceAll(/image: ${DOCKER_IMAGE}:[a-zA-Z0-9._-]+/, "image: ${DOCKER_IMAGE}:${DOCKER_TAG}")
             writeFile file: './velfix-fpm-deployment.yaml', text: updatedDeployment
 
-                    withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-                        sh '''
-                        git config --global user.email "jenkins@velfix.com"
-                        git config --global user.name "Mahdi-Magroun"
-                        git add devops/kubernetes/manifests/velfix-fpm-deployment.yaml
-                        git commit -m "Update image tag to ${DOCKER_TAG}"
-                       
-                        '''
-                        sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-devops.git HEAD:${env.BRANCH_NAME}"
-                    }
-                }
+            // Configure git and commit changes
+            withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                sh '''
+                git config --global user.email "jenkins@velfix.com"
+                git config --global user.name "Mahdi-Magroun"
+                git add ./velfix-fpm-deployment.yaml
+                git commit -m "Update image tag to ${DOCKER_TAG}"
+                '''
+
+                // Push changes to the target repository
+                sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Mahdi-Magroun/velflix-k8s.git HEAD:${env.BRANCH_NAME}"
             }
         }
+    }
+}
+
+        
     }
 }
